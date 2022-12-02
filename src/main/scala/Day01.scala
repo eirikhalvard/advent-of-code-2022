@@ -1,59 +1,85 @@
 import scala.io.Source
 
-object Day01 {
+trait Solver[ParseType, ResultType] {
+  val testString: String
+  val filename: String
 
-  case class Parsed(elves: List[Elf])
+  def parse(lines: List[String]): ParseType
 
-  case class Elf(food: List[Int], elfNumber: Int)
+  def solve(parsed: ParseType): ResultType
 
-  def testInput: List[String] = getLines(testString)
+  final def runTest(): ResultType =
+    solve(parse(testString.linesIterator.toList))
 
-  def filename: String = "./input/day01task1.txt"
-
-  def useTest(): Int =
-    solve(parse((testInput)))
-
-
-  def useFile(): Int = {
-    val source = Source.fromFile(filename)
+  final def runFile(): ResultType = {
+    val filepath: String = s"./input/$filename"
+    val source = Source.fromFile(filepath)
     val input = source.getLines.toList
-    val res = solve(parse((input)))
+    val res = solve(parse(input))
     source.close()
     res
   }
+}
 
 
-  def parse(lines: List[String]): Parsed = {
-    val groups = splitOnEmpty(lines)
-    Parsed(groups.zipWithIndex.map { case (group, index) => Elf(
-      food = group.map(_.toInt),
-      elfNumber = index + 1
-    ) })
+object Day01 {
+
+  case class Elf(food: List[Int], elfNumber: Int)
+
+  case object Task1 extends Solver[List[Elf], Int] {
+    override val testString: String = day01Test
+    override val filename = "day01.txt"
+
+    override def parse(lines: List[String]): List[Elf] = {
+      val groups = splitOnEmpty(lines)
+      groups.zipWithIndex.map { case (group, index) => Elf(
+        food = group.map(_.toInt),
+        elfNumber = index + 1
+      )}
+    }
+
+    def splitOnEmpty(list: List[String]): List[List[String]] ={
+      list match
+        case "" :: rest => splitOnEmpty(rest)
+        case Nil => Nil
+        case _ =>
+          val (group, rest) = list.span(s => s != "")
+          group :: splitOnEmpty(rest)
+    }
+
+
+    override def solve(parsed: List[Elf]): Int = {
+      parsed.map (elf => elf.food.sum).max
+    }
   }
 
-  def getLines(str: String): List[String] = str.linesIterator.toList
+  case object Task2 extends Solver[List[Elf], Int] {
+    override val filename = "day01.txt"
+    override val testString: String = day01Test
 
-  def splitOnEmpty(list: List[String]): List[List[String]] ={
-    list match
-      case "" :: rest => splitOnEmpty(rest)
-      case Nil => Nil
-      case _ =>
-        val (group, rest) = list.span(s => s != "")
-        group :: splitOnEmpty(rest)
-  }
+    override def parse(lines: List[String]): List[Elf] = Task1.parse(lines)
 
-  def solve(parsed: Parsed): Int = {
-    val elfSums = parsed.elves.map ( elf => (elf.food.sum, elf.elfNumber))
-    val bestElf = elfSums.maxBy(_._1)
-    bestElf._2
+    override def solve(parsed: List[Elf]): Int = {
+      val elfSums = parsed.map (elf => elf.food.sum)
+      elfSums.sorted.reverse.take(3).sum
+    }
   }
 
   def main(args: Array[String]): Unit = {
-    val result = useFile()
-    println(result)
+    println("Task1 test result:")
+    println(Task1.runTest())
+
+    println("Task1 legit result:")
+    println(Task1.runFile())
+
+    println("Task2 test result:")
+    println(Task2.runTest())
+
+    println("Task2 legit result:")
+    println(Task2.runFile())
   }
 
-  val testString =
+  val day01Test =
     """|1000
        |2000
        |3000
