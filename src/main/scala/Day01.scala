@@ -31,22 +31,12 @@ object Day01 {
     override val filename = "day01.txt"
 
     override def parse(lines: List[String]): List[Elf] = {
-      val groups = splitOnEmpty(lines)
+      val groups = ParseHelpers.splitOnEmpty(lines)
       groups.zipWithIndex.map { case (group, index) => Elf(
         food = group.map(_.toInt),
         elfNumber = index + 1
       )}
     }
-
-    def splitOnEmpty(list: List[String]): List[List[String]] ={
-      list match
-        case "" :: rest => splitOnEmpty(rest)
-        case Nil => Nil
-        case _ =>
-          val (group, rest) = list.span(s => s != "")
-          group :: splitOnEmpty(rest)
-    }
-
 
     override def solve(parsed: List[Elf]): Int = {
       parsed.map (elf => elf.food.sum).max
