@@ -8,15 +8,16 @@ object Day01 {
 
     override def parse(lines: List[String]): List[Elf] = {
       val groups = ParseHelpers.splitOnEmpty(lines)
-      groups.zipWithIndex.map { case (group, index) => Elf(
-        food = group.map(_.toInt),
-        elfNumber = index + 1
-      )}
+      groups.zipWithIndex.map { case (group, index) =>
+        Elf(
+          food = group.map(_.toInt),
+          elfNumber = index + 1
+        )
+      }
     }
 
-    override def solve(parsed: List[Elf]): Int = {
-      parsed.map (elf => elf.food.sum).max
-    }
+    override def solve(parsed: List[Elf]): Int =
+      parsed.map(elf => elf.food.sum).max
   }
 
   case object Task2 extends Solver[List[Elf], Int] {
@@ -26,7 +27,7 @@ object Day01 {
     override def parse(lines: List[String]): List[Elf] = Task1.parse(lines)
 
     override def solve(parsed: List[Elf]): Int = {
-      val elfSums = parsed.map (elf => elf.food.sum)
+      val elfSums = parsed.map(elf => elf.food.sum)
       elfSums.sorted.reverse.take(3).sum
     }
   }
