@@ -2,6 +2,7 @@ object Day03 {
 
   case class Rucksack(compartment1: List[Item], compartment2: List[Item]) {
     val overlapping: Set[Item] = compartment1.toSet intersect compartment2.toSet
+    val itemSet: Set[Item] = compartment1.toSet union compartment2.toSet
   }
 
   case class Item(char: Char) {
@@ -36,6 +37,26 @@ object Day03 {
       parsed.map(_.overlapping.head.priority).sum
   }
 
+  case object Task2 extends Solver[List[Rucksack], Int] {
+    override val testString: String = testInput
+    override val filename: String = "day03.txt"
+
+    override def parse(lines: List[String]): List[Rucksack] = Task1.parse(lines)
+
+    override def solve(parsed: List[Rucksack]): Int =
+      parsed
+        .grouped(3)
+        .toList
+        .map(group =>
+          group
+            .map(_.itemSet)
+            .reduce(_ intersect _)
+            .head
+            .priority
+        )
+        .sum
+  }
+
   def main(args: Array[String]): Unit = {
     println("Task1 test result:")
     println(Task1.runTest())
@@ -43,11 +64,11 @@ object Day03 {
     println("Task1 legit result:")
     println(Task1.runFile())
 
-//    println("Task2 test result:")
-//    println(Task2.runTest())
+    println("Task2 test result:")
+    println(Task2.runTest())
 
-//    println("Task2 legit result:")
-//    println(Task2.runFile())
+    println("Task2 legit result:")
+    println(Task2.runFile())
 
   }
 }
